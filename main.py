@@ -45,7 +45,7 @@ def main():
                         else:
                             break
 
-                    if played_board.availability(pos):
+                    if played_board.availability(pos) and played_board.open:
                         Board.PlayArea = temp
                         played_board.play(pos, -(-1) ** turn)
                         turn += 1

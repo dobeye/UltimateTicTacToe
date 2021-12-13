@@ -7,8 +7,8 @@ BORDER = 5
 
 class Board:
     RECURSION_LEVEL = 2
-    PARENTAL_RECURSION = True
-    WASTED_TURNS = False
+    PARENTAL_RECURSION = False
+    WASTED_TURNS = True
     PlayArea = []
 
     def __init__(self, screen, position=4, place=((0, 0), (SIZE, SIZE)), level=0, parent=None):
@@ -80,10 +80,9 @@ class Board:
 
         if Board.PARENTAL_RECURSION:
             Board.PlayArea.pop(0)
-        else:
+        elif self.parent is not None:
             Board.PlayArea = Board.PlayArea[:self.level]
-            if self.parent is not None:
-                Board.PlayArea[-1] = position
+            Board.PlayArea[-1] = position
 
         # check winner
         for i in range(3):
@@ -100,7 +99,7 @@ class Board:
 
         if self.winner != 0:
             if self.parent is not None:
-                if self.parent.open:
+                if self.parent.availability(self.position):
                     self.parent.play(self.position, self.winner)
             else:
                 # this will only happen when a player has won the game,
@@ -122,7 +121,7 @@ class Board:
 
     @property
     def open(self):
-        return self.winner == 0 and any(any(x == 0 for x in y) for y in self.board_array)
+        return any(any(x == 0 for x in y) for y in self.board_array) and (Board.WASTED_TURNS or self.winner == 0)
 
     @property
     def border(self):
