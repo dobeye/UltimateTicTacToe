@@ -7,8 +7,8 @@ BORDER = 5
 
 class Board:
     RECURSION_LEVEL = 2
-    PARENTAL_RECURSION = False
-    WASTED_TURNS = True
+    ZERO_POP = False
+    WASTED_TURNS = False
     PlayArea = []
 
     def __init__(self, screen, position=4, place=((0, 0), (SIZE, SIZE)), level=0, parent=None):
@@ -20,7 +20,7 @@ class Board:
         self.parent = parent
         self.position = position
         self.length = place[1][0] - place[0][0]
-        self.playable = not level < Board.RECURSION_LEVEL
+        self.playable = level == Board.RECURSION_LEVEL
 
         self.place = place
         length = place[1][0] - place[0][0]
@@ -29,6 +29,8 @@ class Board:
             dif = self.parent.line / 2 + self.width
         else:
             dif = BORDER
+
+        # region draw board
         pygame.draw.line(screen, LINE_COLOR,
                          (place[0][0] + length / 3, place[0][1] + dif),
                          (place[0][0] + length / 3, place[1][1] - dif),
@@ -45,7 +47,9 @@ class Board:
                          (place[0][0] + dif, place[0][1] + length * 2 / 3),
                          (place[1][0] - dif, place[0][1] + length * 2 / 3),
                          self.width)
+        # endregion
 
+        # create inner boards for every position in the current board
         self.inner_boards = []
         if not self.playable:
             for i in range(9):
@@ -59,6 +63,8 @@ class Board:
     def play(self, position, player):
         position = int(position)
         self.board_array[position // 3][position % 3] = player
+
+        # draw X/Circle depending on the player, and if the player is neither 1 nor 2, raise an error
         if player == 1:
             pygame.draw.line(self.screen, LINE_COLOR,
                              (self.place[0][0] + self.length * (position % 3) / 3,
@@ -78,11 +84,16 @@ class Board:
         else:
             raise Exception("InvalidPlayer")
 
-        if Board.PARENTAL_RECURSION:
-            Board.PlayArea.pop(0)
+        # set up play area for the next player depending on selected rules
+        if Board.ZERO_POP:
+            if self.playable:
+                Board.PlayArea.pop(0)
         elif self.parent is not None:
             Board.PlayArea = Board.PlayArea[:self.level]
             Board.PlayArea[-1] = position
+        elif Board.RECURSION_LEVEL == 0:
+            Board.PlayArea = []
+        print(Board.PlayArea)
 
         # check winner
         for i in range(3):

@@ -33,6 +33,10 @@ def main():
                 elif available_board.border[0][0] < mouse_x < available_board.border[1][0] and \
                         available_board.border[0][1] < mouse_y < available_board.border[1][1]:
 
+                    pygame.draw.rect(screen, (0, 85, 75),
+                                     (available_board.border[0],
+                                      (available_board.length, available_board.length)), 2)
+
                     # Identify the played board
                     played_board = board
                     temp = []
@@ -57,6 +61,8 @@ def main():
                         available_board = available_board.get_board(x)
                     else:
                         break
+
+                pygame.draw.rect(screen, WHITE, (available_board.border[0], (available_board.length, available_board.length)), 2)
 
         pygame.display.update()
 
